@@ -1,23 +1,30 @@
 from django.shortcuts import render,redirect
 from .models import JobAlert 
+from django.shortcuts import get_object_or_404
+from user.models import Candidate
 
 def messages_display(request):
-    candidate = request.user  
-    print("Logged-in user:", candidate)
+    user = request.user
+    print("Logged-in user:", user)
+
+    # Get the Candidate instance for the logged-in user
+    candidate = get_object_or_404(Candidate, user_id=request.user.id)
+
+    print("Candidate ID:", candidate.id)
 
     job_alerts = JobAlert.objects.filter(cand_id=candidate).select_related('job_alert_id').order_by('-created_at')
     print("Number of job alerts:", job_alerts.count())
 
     for alert in job_alerts:
         print("Alert -> Job Title:", alert.job_alert_id.title)
-        print("Company:", alert.job_alert_id.company_name)
+        # print("Company:", alert.job_alert_id.company_name)
         print("Created at:", alert.created_at)
 
     context = {
-        'user': candidate,
+        'user': user,
         'job_alerts': job_alerts,
     }
-    return render(request, 'candidate_home.html', context)
+    return render(request, 'message_list.html', context)
 
 
 def resume_format(request):

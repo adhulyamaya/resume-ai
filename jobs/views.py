@@ -162,9 +162,7 @@ def rank_jobs(request):
             ranked_jobs.sort(key=lambda x: x['score'], reverse=True)
         
         print(f"Ranked jobs sorted: {ranked_jobs}")
-
-     
-        return render(request, 'user/candidate_home.html', {
+        return render(request, 'jobs/suggested_jobs.html', {
             'matched_jobs': ranked_jobs,
             'candidate': candidate,
             'total_jobs': len(jobs),

@@ -82,16 +82,19 @@
                   <i class="ri-chat-3-line"></i> Messages
               </button>
           </a>
+
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="search-tab" data-bs-toggle="tab" data-bs-target="#search" type="button" role="tab">
                 <i class="ri-search-line"></i> Search Jobs
               </button>
             </li>
+
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="suggestions-tab" data-bs-toggle="tab" data-bs-target="#suggestions" type="button" role="tab">
-                <i class="ri-lightbulb-line"></i> Job Suggestions
+              <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages" type="button" role="tab">
+                <i class="ri-chat-3-line"></i> Messages
               </button>
             </li>
+            
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status" type="button" role="tab">
                 <i class="ri-file-list-3-line"></i> Application Status
@@ -138,26 +141,121 @@
                 </tbody>
               </table>
             </div>
+
+            <!-- Messages Tab -->
             <!-- Messages Tab -->
             <div class="tab-pane fade" id="messages" role="tabpanel">
               <h5><i class="ri-chat-3-line"></i> Messages</h5>
-          
-              {% if job_alerts %}
-                  <ul class="list-group">
-                      {% for alert in job_alerts %}
-                          <li class="list-group-item">
-                              <strong>{{ alert.job_alert_id.title }}</strong> at <strong>{{ alert.job_alert_id.company_name }}</strong><br>
-                              <small class="text-muted">Posted on {{ alert.job_alert_id.posted_on }}</small><br>
-                              <small class="text-muted">Alert created: {{ alert.created_at }}</small>
-                              <p>{{ alert.job_alert_id.description|truncatewords:20 }}</p>
-                          </li>
-                      {% endfor %}
-                  </ul>
+
+              {% if messages %}
+                <ul class="list-group">
+                  {% for message in messages %}
+                    <li class="list-group-item">
+                      <strong>{{ message.job.title }}</strong> at <strong>{{ message.job.company_name }}</strong><br>
+                      <small class="text-muted">Posted on {{ message.job.posted_on }}</small><br>
+                      <small class="text-muted">Message created: {{ message.created_at }}</small>
+                      <p>{{ message.job.description|truncatewords:20 }}</p>
+                    </li>
+                  {% endfor %}
+                </ul>
               {% else %}
-                  <p>No new notifications.</p>
+                <p>No messages found.</p>
               {% endif %}
+            </div>
+
+
+          <div class="tab-pane fade" id="search" role="tabpanel">
+            <h5><i class="ri-search-line"></i> Search Jobs</h5>
+
+            <!-- Job Search Form -->
+            <form class="search-job-form" method="GET" action="{% url 'jobs:search_jobs' %}">
+              <input type="text" name="query" class="form-control d-inline-block" placeholder="Search by title or description" style="width: 300px;">
+              <input type="text" name="location" class="form-control d-inline-block" placeholder="Location" style="width: 200px;">
+              <select name="job_type" class="form-select d-inline-block" style="width: 200px;">
+                <option value="">Select Job Type</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Internship">Internship</option>
+              </select>
+              <button type="submit" class="btn btn-success">Search</button>
+            </form>
+
+            <!-- Displaying Jobs Table -->
+            {% if jobs %}
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Job Type</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for job in jobs %}
+                    <tr>
+                      <td>{{ job.title }}</td>
+                      <td>{{ job.company_name }}</td>
+                      <td>{{ job.location }}</td>
+                      <td>{{ job.job_type }}</td>
+                      <td>
+                        <a href="{% url 'job:apply' job.id %}" class="btn btn-sm btn-primary">
+                          Apply Now
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% else %}
+              <p>No jobs found. Try adjusting your search criteria.</p>
+            {% endif %}
           </div>
-            <!-- Job Suggestions Tab -->
+
+          <!-- Job Suggestions Tab -->
+           
+        <div class="tab-pane fade" id="suggestions" role="tabpanel">
+          <h5><i class="ri-lightbulb-line"></i> Job Suggestions</h5>
+
+          {% if matched_jobs %}
+            <div class="table-responsive">
+              <table class="table table-hover table-bordered">
+                <thead class="table-success">
+                  <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Posted On</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for job in matched_jobs %}
+                    <tr>
+                      <td>{{ job.title }}</td>
+                      <td>{{ job.company_name }}</td>
+                      <td>{{ job.location }}</td>
+                      <td>{{ job.posted_on }}</td>
+                      <td>{{ job.description|truncatewords:15 }}</td>
+                      <td>
+                        <a href="{% url 'job:apply' job.id %}" class="btn btn-sm btn-outline-primary">
+                          Apply Now
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <p class="text-muted">No job suggestions available at the moment. Please check back later.</p>
+          {% endif %}
+        </div>
+
+
+            {% comment %} <!-- Job Suggestions Tab -->
             <div class="tab-pane fade" id="suggestions" role="tabpanel">
               <h5><i class="ri-lightbulb-line"></i> Job Suggestions</h5>
               
@@ -178,7 +276,7 @@
               {% else %}
                 <p>No job suggestions available.</p>
               {% endif %}
-            </div>
+            </div> {% endcomment %}
 
             <!-- Notifications Modal -->
             <div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsModalLabel" aria-hidden="true">

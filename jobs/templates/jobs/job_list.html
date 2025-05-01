@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Job Search Form -->
+<div class="container mt-4">
+    <h2>Search Jobs</h2>
+    
+    <!-- Search Form -->
+    <form method="GET" action="{% url 'jobs:search_jobs' %}">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="text" name="query" class="form-control" placeholder="Search by job title or description" value="{{ request.GET.query }}">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="location" class="form-control" placeholder="Location" value="{{ request.GET.location }}">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="job_type" class="form-control" placeholder="Job Type" value="{{ request.GET.job_type }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Job List Table -->
+<div class="container mt-4">
+    <h3>Job Results</h3>
+
+    {% if jobs %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Company</th>
+                <th>Location</th>
+                <th>Job Type</th>
+                <th>Posted On</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td>{{ job.title }}</td>
+                <td>{{ job.company_name }}</td>
+                <td>{{ job.location }}</td>
+                <td>{{ job.job_type }}</td>
+                <td>{{ job.posted_on }}</td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No jobs found based on your search criteria.</p>
+    {% endif %}
+</div>
+
+<!-- Back to Dashboard Button -->
+<div class="container mt-4">
+    <a href="{% url 'user:candidate_home' %}" class="btn" style="background-color: #1ed760; color: white;">
+        <i class="ri-arrow-left-line"></i> Back to Dashboard
+    </a>
+</div>
+
+{% endblock %}

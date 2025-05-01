@@ -11,33 +11,7 @@ from groq import Groq
 from operator import itemgetter
 from .models import ResumeData,Job
 from user.views import extract_resume_data, parse_resume_pdf
-
-# utils.py
 import re
-# def filter_jobs(resume_data, jobs):
-#     """Filter jobs based on skills, location, and experience."""
-#     import ast
-#     filtered_jobs = []
-#     skills = resume_data['skills'] if resume_data['skills'] else []
-
-#     # Normalize experience
-#     try:
-#         experience_years = float(resume_data['experience'].split('+')[0].strip())
-#     except Exception:
-#         experience_years = 0
-
-#     # Filtering logic
-#     for job in jobs:
-#         skill_match = any(skill.lower() in job.required_skills.lower() for skill in skills)
-#         location_match = resume_data['location'].lower() in job.location.lower() if resume_data['location'] else True
-#         experience_match = experience_years >= job.min_experience
-
-#         if skill_match and location_match and experience_match:
-#             filtered_jobs.append(job)
-
-#     return filtered_jobs
-
-
 
 def filter_jobs(resume_data, jobs):
     """Filter jobs based on skills, location, and experience, prioritizing skills_required field."""

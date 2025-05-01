@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Suggested Jobs</h2>
+
+    {% if jobs %}
+        <div class="list-group">
+            {% for job in jobs %}
+                <div class="list-group-item mb-3 shadow-sm p-3 rounded">
+                    <h4 class="mb-1">{{ job.job_title }}</h4>
+                    <p class="mb-1"><strong>Location:</strong> {{ job.location }}</p>
+                    <p class="mb-1"><strong>Job Type:</strong> {{ job.job_type }}</p>
+                    <p class="mb-1"><strong>Minimum Experience:</strong> {{ job.min_experience }} years</p>
+                    <p class="mb-1"><strong>Description:</strong> {{ job.description }}</p>
+                    <p class="mb-1"><strong>Match Score:</strong> {{ job.score }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No job suggestions available at the moment.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-header bg-success text-white">
+      <h5><i class="ri-chat-3-line"></i> Job Alerts</h5>
+    </div>
+    <div class="card-body">
+      {% if job_alerts %}
+        <ul class="list-group">
+          {% for alert in job_alerts %}
+            <li class="list-group-item">
+              <h6 class="font-weight-bold">{{ alert.job_alert_id.title }}</h6>
+              <small class="text-success">New job relevant to your profile created: {{ alert.created_at }}</small><br>
+              <p>About: {{ alert.job_alert_id.description|truncatewords:50 }}</p>
+              <p><span style="color: green;">Skills: {{ alert.job_alert_id.skills_required|truncatewords:50 }}</span></p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted">You have no new job alerts.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

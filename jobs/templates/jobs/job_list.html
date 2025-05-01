@@ -5,8 +5,7 @@
 <!-- Job Search Form -->
 <div class="container mt-4">
     <h2>Search Jobs</h2>
-    
-    <!-- Search Form -->
+
     <form method="GET" action="{% url 'jobs:search_jobs' %}">
         <div class="row">
             <div class="col-md-3">
@@ -30,14 +29,13 @@
     <h3>Job Results</h3>
 
     {% if jobs %}
-    <table class="table table-bordered">
+    <form id="csrf-form">{% csrf_token %}</form>
+    <table class="table table-bordered" style="color: white;">
         <thead>
             <tr>
                 <th>Title</th>
-                <th>Company</th>
                 <th>Location</th>
                 <th>Job Type</th>
-                <th>Posted On</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -45,17 +43,23 @@
             {% for job in jobs %}
             <tr>
                 <td>{{ job.title }}</td>
-                <td>{{ job.company_name }}</td>
                 <td>{{ job.location }}</td>
                 <td>{{ job.job_type }}</td>
-                <td>{{ job.posted_on }}</td>
-                
+                <td>
+                    <button
+                        class="btn btn-sm apply-btn {% if job.id in applied_job_ids %}btn-success{% else %}btn-primary{% endif %}"
+                        data-job-id="{{ job.id }}"
+                        {% if job.id in applied_job_ids %}disabled{% endif %}
+                    >
+                        {% if job.id in applied_job_ids %}Applied{% else %}Apply Now{% endif %}
+                    </button>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% else %}
-        <p>No jobs found based on your search criteria.</p>
+    <p>No jobs found based on your search criteria.</p>
     {% endif %}
 </div>
 
@@ -65,5 +69,44 @@
         <i class="ri-arrow-left-line"></i> Back to Dashboard
     </a>
 </div>
+
+<!-- JavaScript to handle AJAX apply -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".apply-btn");
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    buttons.forEach(button => {
+        button.addEventListener("click", function () {
+            const jobId = this.dataset.jobId;
+            const currentButton = this;
+
+            fetch(`/jobs/apply/${jobId}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                    "Content-Type": "application/json"
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    currentButton.textContent = "Applied";
+                    currentButton.classList.remove("btn-primary");
+                    currentButton.classList.add("btn-success");
+                    currentButton.disabled = true;
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Something went wrong while applying.");
+            });
+        });
+    });
+});
+</script>
 
 {% endblock %}

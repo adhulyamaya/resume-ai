@@ -19,6 +19,11 @@ from django.contrib import messages
 from .models import Job
 from notify.models import JobAlert
 from django.db.models import Q
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib import messages
+from .models import Candidate, Job, JobApplication
+from django.http import JsonResponse
+from user.models import User
 
 
 def create_job(request):
@@ -88,6 +93,40 @@ def search_jobs(request):
         jobs = jobs.filter(job_type__icontains=job_type)
 
     return render(request, 'jobs/job_list.html', {'jobs': jobs})
+
+
+def apply(request, job_id):
+    if request.method == "POST":
+        user_id = request.session.get("user_id")
+        print(f"User ID from session: {user_id}")
+        if not user_id:
+            return JsonResponse({'error': 'You must be logged in to apply for a job.'}, status=400)
+
+        user = get_object_or_404(User, id=user_id)
+        candidate = get_object_or_404(Candidate, user_id=user)
+        job = get_object_or_404(Job, id=job_id)
+
+        existing_application = JobApplication.objects.filter(
+            candidate_job_app_id=candidate, job_id=job
+        ).first()
+
+        if existing_application:
+            if existing_application.status == 'Apply':
+                return JsonResponse({'message': 'You have already applied for this job.'}, status=200)
+            else:
+                existing_application.status = 'Apply'
+                existing_application.save()
+                return JsonResponse({'message': 'Job application updated to "Applied".'}, status=200)
+        else:
+            JobApplication.objects.create(
+                candidate_job_app_id=candidate,
+                job_id=job,
+                status='Apply'
+            )
+            return JsonResponse({'message': 'Job application submitted successfully!'}, status=200)
+
+    return JsonResponse({'error': 'Invalid request method.'}, status=400)
+
 
 
 def delete_job(request, job_id):

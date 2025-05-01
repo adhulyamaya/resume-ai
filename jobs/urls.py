@@ -8,5 +8,5 @@ urlpatterns = [
     path('create/', views.create_job, name='create_job'),
     path('delete/<int:job_id>/', views.delete_job, name='delete_job'),
 
-    path('rank_job/', views.rank_jobs, name='rank_job'),    
+    path('rank_jobs/', views.rank_jobs, name='rank_job'),    
 ]

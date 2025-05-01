@@ -1,0 +1,48 @@
+header{
+    background-color: #1ed760;
+    color: white;
+}
+body{
+    background-color: black;
+    margin: 0;
+    padding: 0;
+}
+
+.brand-logo{
+    height: 30px;
+    width: 30px;
+    border-radius: 15px;
+}
+.brand-logo img{
+    width: 100%;
+    object-fit: contain;
+}
+footer{
+    background-color: rgb(24, 24, 24);
+    padding: 0px 100px;
+}
+.footer-container{
+    display: flex;
+    flex-direction: column;
+} 
+.fr1{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 30px;
+} 
+.fr1 a{
+    text-decoration: none;
+    color: #1ed760;
+}
+.fr2 a{
+    text-decoration: none;
+    color: #1ed760;
+    padding-right: 2%;
+    font-size: 2rem;
+}
+.fr2, .fr3{
+    text-align: center;
+    padding-bottom: 10px;
+}
+

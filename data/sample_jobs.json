@@ -1,0 +1,29 @@
+[
+    {
+        "title": "Senior Python Developer",
+        "description": "We are looking for a Senior Python Developer with experience in web frameworks like Django or Flask.",
+        "skills_required": ["Python", "Django", "Flask", "SQL", "Git"],
+        "location": "Kerala",
+        "min_experience": 2.0,
+        "job_type": "Onsite",
+        "salary": 50000.00
+    },
+    {
+        "title": "Data Scientist",
+        "description": "Join our data science team to build machine learning models and analyze large datasets.",
+        "skills_required": ["Python", "Machine Learning", "Statistics", "Pandas", "TensorFlow"],
+        "location": "San Francisco",
+        "min_experience": 3.0,
+        "job_type": "Hybrid",
+        "salary": 70000.00
+    },
+    {
+        "title": "Frontend Developer",
+        "description": "We need a Frontend Developer with strong skills in JavaScript, React, and responsive design.",
+        "skills_required": ["JavaScript", "React", "HTML", "CSS", "Webpack", "Django"],
+        "location": "Kerala",
+        "min_experience": 2.0,
+        "job_type": "WorkFromHome",
+        "salary": 60000.00
+    }
+]

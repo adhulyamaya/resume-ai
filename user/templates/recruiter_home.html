@@ -1,0 +1,519 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .nav-link:hover {
+        background-color: #495057;
+        color: #ffffff;
+    }
+</style>
+
+<div class="d-flex">
+    <!-- Sidebar -->
+    <div style="min-width: 250px; min-height: 100vh;">
+        <h4 class="mb-4">Recruiter Dashboard</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+                <a href="#profile" class="nav-link text-white" data-section="profile">
+                    <i class="bi bi-person-fill me-2"></i> View/Edit Profile
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a href="#search-candidates" class="nav-link text-white" data-section="search-candidates">
+                    <i class="bi bi-search me-2"></i> Search Candidates
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a href="#ai-recommendations" class="nav-link text-white" data-section="ai-recommendations">
+                    <i class="bi bi-brain me-2"></i> AI Candidate Recommendations
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a href="#onboarding" class="nav-link text-white" data-section="onboarding">
+                    <i class="bi bi-person-lines-fill me-2"></i> Onboarding Activities
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a href="/jobs/manage-jobs/" class="nav-link text-white">
+                    <i class="bi bi-briefcase me-2"></i> Manage Jobs
+                </a>                
+            </li>
+            <li class="nav-item mb-2">
+                <a href="{% url 'user:logout' %}" class="nav-link text-danger">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1 p-4">
+        <h2>Welcome, {{ user.fullname }}</h2>
+        <hr>
+
+        <!-- Recruiter Profile -->
+        <div id="profile" class="section mb-5" style="animation: fadeIn 0.7s ease-in;">
+            <div class="card shadow-sm" style="border-radius: 15px;">
+                <div class="card-body" style="background: linear-gradient(135deg, #2c3e50, #34495e); border-radius: 15px; color: #ecf0f1; padding: 30px;">
+                    <h4 class="card-title mb-4 fw-semibold fs-4">
+                        <i class="bi bi-person-circle me-2 text-primary"></i>Recruiter Profile
+                    </h4>
+                
+                    {% if recruiter %}
+                    <div class="row align-items-center">
+                        <div class="col-md-6" style="line-height: 1.8;">
+                            <p><strong class="text-success">Company Name:</strong> {{ recruiter.company_name }}</p>
+                            <p><strong class="text-success">Company Email:</strong> {{ recruiter.company_email }}</p>
+                            <p><strong class="text-success">Address:</strong> {{ recruiter.address }}</p>
+                            <a href="{% url 'user:edit_profile' %}" 
+                               class="btn btn-outline-light btn-sm mt-3" 
+                               style="border-color: #1abc9c; color: #1abc9c;">
+                                <i class="bi bi-pencil-square me-1"></i>Edit Profile
+                            </a>
+                        </div>
+                        <div class="col-md-6 d-flex flex-column align-items-center justify-content-center">
+                            <i class="bi bi-briefcase-fill"
+                               style="font-size: 48px; color: #1abc9c; background: #ffffff; padding: 15px; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                            </i>
+                        </div>
+                    </div>
+
+                    <!-- Onboarding Progress -->
+                    <div class="mt-5">
+                        <h6 class="fw-medium"><i class="bi bi-graph-up-arrow text-warning me-2"></i>Onboarding Progress</h6>
+                        <div class="progress" style="height: 22px; border-radius: 12px; background-color: #7f8c8d;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: 70%; background: linear-gradient(to right, #1abc9c, #16a085); font-weight: bold;" 
+                                 aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">
+                                70%
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                        <p class="text-danger mt-3">Recruiter profile not found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+                <!-- Candidate Search -->
+                <div id="search-candidates" class="section mb-5" style="display:none;">
+                    <h4>Search Candidates</h4>
+                    <form method="GET" action="{% url 'user:search_candidates' %}" class="row g-3 mb-3">
+                        {% csrf_token %}
+                        <div class="col-md-4">
+                            <input type="text" name="job_title" class="form-control" placeholder="Job Title or Keyword" value="{{ request.GET.job_title }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select name="location" class="form-select">
+                                <option value="">Location</option>
+                                {% for loc in locations %}
+                                    <option value="{{ loc }}" {% if request.GET.location == loc %}selected{% endif %}>{{ loc }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="qualification" class="form-select">
+                                <option value="">Qualification</option>
+                                {% for qual in qualifications %}
+                                    <option value="{{ qual }}" {% if request.GET.qualification == qual %}selected{% endif %}>{{ qual }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Search</button>
+                        </div>
+                    </form>
+                </div>
+        
+        
+                    {% if candidates %}
+                    <div class="card p-3">
+                        <h5>Search Results</h5>
+                        <ul class="list-group">
+                            {% for candidate in candidates %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ candidate.user_id.fullname }}</strong> - {{ candidate.skill }} ({{ candidate.exp }} years)
+                                </div>
+                                <form method="POST" action="{% url 'user:candidate_action' candidate.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" name="action" value="accept" class="btn btn-success btn-sm me-1">Accept</button>
+                                    <button type="submit" name="action" value="hold" class="btn btn-warning btn-sm me-1">Hold</button>
+                                    <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+                                </form>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% else %}
+                    <p>No candidates found.</p>
+                    {% endif %}
+                </div>
+        
+                <!-- AI Recommendations -->
+                <div id="ai-recommendations" class="section mb-5" style="display:none;">
+                    <h4>AI Candidate Recommendations</h4>
+                    {% if ai_recommendations %}
+                    <p>Ranked list of suitable candidates based on your job postings and preferences:</p>
+                    <ol>
+                        {% for candidate in ai_recommendations %}
+                        <li>{{ candidate.user_id.fullname }} - {{ candidate.skill }} (Rank {{ forloop.counter }})</li>
+                        {% endfor %}
+                    </ol>
+                    {% else %}
+                    <p>No recommendations available at this time.</p>
+                    {% endif %}
+                </div>
+        
+                <!-- Onboarding -->
+                <div id="onboarding" class="section mb-5" style="display:none;">
+                    <h4>Onboarding Activities</h4>
+                    <ul>
+                        <li>Send welcome email to selected candidate</li>
+                        <li>Schedule orientation call</li>
+                        <li>Assign onboarding buddy</li>
+                        <li>Prepare contract and offer letter</li>
+                        <li>Set up work email and accounts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Section toggle logic
+        const navLinks = document.querySelectorAll('a[data-section]');
+        const sections = document.querySelectorAll('.section');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                sections.forEach(sec => sec.style.display = 'none');
+                document.getElementById(this.dataset.section).style.display = 'block';
+
+                // Scroll into view
+                document.getElementById(this.dataset.section).scrollIntoView({ behavior: 'smooth' });
+
+                // Active class
+                navLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Show profile section by default
+        document.getElementById('profile').style.display = 'block';
+
+        // Optional: Add chart logic only if canvas exists
+        const canvas = document.getElementById('candidateChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Accepted', 'On Hold', 'Rejected'],
+                    datasets: [{
+                        label: 'Candidate Status',
+                        data: [12, 5, 8],
+                        backgroundColor: ['#198754', '#ffc107', '#dc3545'],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 14 },
+                                color: '#343a40'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+<!-- JavaScript for section switching -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const navLinks = document.querySelectorAll('a[data-section]');
+        const sections = document.querySelectorAll('.section');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                sections.forEach(sec => sec.style.display = 'none');
+                document.getElementById(this.dataset.section).style.display = 'block';
+
+                navLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Show profile section by default
+        document.getElementById('profile').style.display = 'block';
+    });
+</script>
+{% endblock %}
+
+
+
+
+
+{% comment %} {% extends 'base.html' %}
+
+{% block content %}
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .nav-link:hover {
+        background-color: #495057;
+        color: #ffffff;
+    }
+</style>
+
+<div class="d-flex">
+    <!-- Sidebar -->
+    <div style="min-width: 250px; min-height: 100vh;">
+        <h4 class="mb-4">Recruiter Dashboard</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+                <a href="#profile" class="nav-link text-white" data-section="profile">
+                    <i class="bi bi-person-fill me-2"></i> View/Edit Profile
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a href="#search-candidates" class="nav-link text-white" data-section="search-candidates">
+                    <i class="bi bi-search me-2"></i> Search Candidates
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a href="#ai-recommendations" class="nav-link text-white" data-section="ai-recommendations">
+                    <i class="bi bi-brain me-2"></i> AI Candidate Recommendations
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a href="#onboarding" class="nav-link text-white" data-section="onboarding">
+                    <i class="bi bi-person-lines-fill me-2"></i> Onboarding Activities
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a href="{% url 'jobs:job_list' %}" class="nav-link text-white" data-section="jobs">
+                    <i class="bi bi-briefcase me-2"></i> Manage Jobs
+                </a>                
+            </li>
+            <li class="nav-item mb-2">
+                <a href="{% url 'user:logout' %}" class="nav-link text-danger">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1 p-4">
+        <h2>Welcome, {{ user.fullname }}</h2>
+        <hr>
+
+        <!-- Recruiter Profile -->
+        <div id="profile" class="section mb-5" style="animation: fadeIn 0.7s ease-in;">
+            <div class="card shadow-sm" style="border-radius: 15px;">
+                <div class="card-body" style="background: linear-gradient(135deg, #2c3e50, #34495e); border-radius: 15px; color: #ecf0f1; padding: 30px;">
+                    <h4 class="card-title mb-4 fw-semibold fs-4">
+                        <i class="bi bi-person-circle me-2 text-primary"></i>Recruiter Profile
+                    </h4>
+                
+                    {% if recruiter %}
+                    <div class="row align-items-center">
+                        <div class="col-md-6" style="line-height: 1.8;">
+                            <p><strong class="text-success">Company Name:</strong> {{ recruiter.company_name }}</p>
+                            <p><strong class="text-success">Company Email:</strong> {{ recruiter.company_email }}</p>
+                            <p><strong class="text-success">Address:</strong> {{ recruiter.address }}</p>
+                            <a href="{% url 'user:edit_profile' %}" 
+                               class="btn btn-outline-light btn-sm mt-3" 
+                               style="border-color: #1abc9c; color: #1abc9c;">
+                                <i class="bi bi-pencil-square me-1"></i>Edit Profile
+                            </a>
+                        </div>
+                        <div class="col-md-6 d-flex flex-column align-items-center justify-content-center">
+                            <i class="bi bi-briefcase-fill"
+                               style="font-size: 48px; color: #1abc9c; background: #ffffff; padding: 15px; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.3);">
+                            </i>
+                        </div>
+                    </div>
+
+                    <!-- Onboarding Progress -->
+                    <div class="mt-5">
+                        <h6 class="fw-medium"><i class="bi bi-graph-up-arrow text-warning me-2"></i>Onboarding Progress</h6>
+                        <div class="progress" style="height: 22px; border-radius: 12px; background-color: #7f8c8d;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: 70%; background: linear-gradient(to right, #1abc9c, #16a085); font-weight: bold;" 
+                                 aria-valuenow="70" aria-valuemin="0" aria-valuemax="100">
+                                70%
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                        <p class="text-danger mt-3">Recruiter profile not found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Candidate Search -->
+        <div id="search-candidates" class="section mb-5" style="display:none;">
+            <h4>Search Candidates</h4>
+            <form method="GET" action="{% url 'user:search_candidates' %}" class="row g-3 mb-3">
+                {% csrf_token %}
+                <div class="col-md-4">
+                    <input type="text" name="job_title" class="form-control" placeholder="Job Title or Keyword" value="{{ request.GET.job_title }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="location" class="form-select">
+                        <option value="">Location</option>
+                        {% for loc in locations %}
+                            <option value="{{ loc }}" {% if request.GET.location == loc %}selected{% endif %}>{{ loc }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="qualification" class="form-select">
+                        <option value="">Qualification</option>
+                        {% for qual in qualifications %}
+                            <option value="{{ qual }}" {% if request.GET.qualification == qual %}selected{% endif %}>{{ qual }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </form>
+        </div>
+
+
+            {% if candidates %}
+            <div class="card p-3">
+                <h5>Search Results</h5>
+                <ul class="list-group">
+                    {% for candidate in candidates %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ candidate.user_id.fullname }}</strong> - {{ candidate.skill }} ({{ candidate.exp }} years)
+                        </div>
+                        <form method="POST" action="{% url 'user:candidate_action' candidate.id %}">
+                            {% csrf_token %}
+                            <button type="submit" name="action" value="accept" class="btn btn-success btn-sm me-1">Accept</button>
+                            <button type="submit" name="action" value="hold" class="btn btn-warning btn-sm me-1">Hold</button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% else %}
+            <p>No candidates found.</p>
+            {% endif %}
+        </div>
+
+        <!-- AI Recommendations -->
+        <div id="ai-recommendations" class="section mb-5" style="display:none;">
+            <h4>AI Candidate Recommendations</h4>
+            {% if ai_recommendations %}
+            <p>Ranked list of suitable candidates based on your job postings and preferences:</p>
+            <ol>
+                {% for candidate in ai_recommendations %}
+                <li>{{ candidate.user_id.fullname }} - {{ candidate.skill }} (Rank {{ forloop.counter }})</li>
+                {% endfor %}
+            </ol>
+            {% else %}
+            <p>No recommendations available at this time.</p>
+            {% endif %}
+        </div>
+
+        <!-- Onboarding -->
+        <div id="onboarding" class="section mb-5" style="display:none;">
+            <h4>Onboarding Activities</h4>
+            <ul>
+                <li>Send welcome email to selected candidate</li>
+                <li>Schedule orientation call</li>
+                <li>Assign onboarding buddy</li>
+                <li>Prepare contract and offer letter</li>
+                <li>Set up work email and accounts</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Section toggle logic
+        const navLinks = document.querySelectorAll('a[data-section]');
+        const sections = document.querySelectorAll('.section');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                sections.forEach(sec => sec.style.display = 'none');
+                document.getElementById(this.dataset.section).style.display = 'block';
+
+                // Scroll into view
+                document.getElementById(this.dataset.section).scrollIntoView({ behavior: 'smooth' });
+
+                // Active class
+                navLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Show profile section by default
+        document.getElementById('profile').style.display = 'block';
+
+        // Optional: Add chart logic only if canvas exists
+        const canvas = document.getElementById('candidateChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Accepted', 'On Hold', 'Rejected'],
+                    datasets: [{
+                        label: 'Candidate Status',
+                        data: [12, 5, 8],
+                        backgroundColor: ['#198754', '#ffc107', '#dc3545'],
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 14 },
+                                color: '#343a40'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
+{% endcomment %}

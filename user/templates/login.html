@@ -1,0 +1,24 @@
+{%extends 'base.html'%}
+{%load static%}
+{%block content%}
+<div class="login-container" style="display: flex;flex-direction: column; align-items: center;padding: 20px; justify-content: center;">
+    <h2 style="padding-bottom: 10px;">Login</h2>
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{message}}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="POST" style="display: flex;flex-direction: column;">
+        {% csrf_token %}
+        <input type="email" name="email" required placeholder="Enter your email" style="padding:10px 100px 10px 10px;border-radius: 30px;font-size: 16px;">
+        <br>
+        <input type="password" name="password" required placeholder="Enter the password" style="padding:10px 100px 10px 10px;border-radius: 30px;font-size: 16px;">
+        <br>
+        <button type="submit" style="background-color: #1ed760; color: white;padding: 10px;border: none;border-radius: 20px;cursor: pointer;">LOGIN</button>
+    </form>
+    <p style="text-align: center;margin-top: 15px; font-size: 14px;"><a href="{% url 'user:forgot_password' %}" style="text-decoration: none;color: #1ed760;">Forgot password?</a></p>
+    <p style="text-align: center;font-size: 14px;">New user? <a href="{% url 'user:signup' %}" style="text-decoration: none;color: #1ed760;">Sign up</a></p>
+</div>
+{%endblock%}

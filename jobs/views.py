@@ -19,15 +19,51 @@ from .utils import  extract_resume_data, filter_jobs, rank_job
 from django.shortcuts import redirect
 from django.contrib import messages
 from .models import Job
+from notify.models import JobAlert
+
+# def create_job(request):
+#     if request.method == "POST":
+#         # Ensure user is authenticated
+#         if not request.session.get("user_id"):
+#             messages.error(request, "You must be logged in to create a job.")
+#             return redirect("user:login")
+
+#         # Get the data from the POST request
+#         title = request.POST.get("title")
+#         description = request.POST.get("description")
+#         skills_required = request.POST.get("skills_required")
+#         location = request.POST.get("location")
+#         min_experience = request.POST.get("min_experience")
+#         job_type = request.POST.get("job_type")
+#         salary = request.POST.get("salary")
+
+#         try:
+#             Job.objects.create(
+#                 title=title,
+#                 description=description,
+#                 skills_required=skills_required,
+#                 location=location,
+#                 min_experience=min_experience or 0, 
+#                 job_type=job_type,
+#                 salary=salary or 0  
+#             )
+#             messages.success(request, "Job created successfully!")
+#         except Exception as e:
+#             messages.error(request, f"Error creating job: {e}")
+
+#         return redirect("jobs:job_list")
+
+#     return redirect("jobs:job_list")
+
+
 
 def create_job(request):
     if request.method == "POST":
-        # Ensure user is authenticated
         if not request.session.get("user_id"):
             messages.error(request, "You must be logged in to create a job.")
+            print("User not logged in, redirecting to login.")
             return redirect("user:login")
 
-        # Get the data from the POST request
         title = request.POST.get("title")
         description = request.POST.get("description")
         skills_required = request.POST.get("skills_required")
@@ -36,23 +72,60 @@ def create_job(request):
         job_type = request.POST.get("job_type")
         salary = request.POST.get("salary")
 
+        print(f"Received job details: {title}, {description}, {skills_required}, {location}, {min_experience}, {job_type}, {salary}")
+
         try:
-            Job.objects.create(
+            job = Job.objects.create(
                 title=title,
                 description=description,
                 skills_required=skills_required,
                 location=location,
-                min_experience=min_experience or 0, 
+                min_experience=min_experience or 0,
                 job_type=job_type,
-                salary=salary or 0  
+                salary=salary or 0
             )
-            messages.success(request, "Job created successfully!")
+
+            print(f"Job created successfully: {job.title} - {job.id}")
+
+            # Create job alerts for all candidates
+            for candidate in Candidate.objects.all():
+                print(f"Creating job alert for candidate: {candidate.user_id}")
+                JobAlert.objects.create(
+                    cand_id=candidate,
+                    job_alert_id=job
+                )
+
+            messages.success(request, "Job created and alerts sent to candidates!")
+            print("Job alerts sent to all candidates.")
+
         except Exception as e:
             messages.error(request, f"Error creating job: {e}")
+            print(f"Error occurred: {e}")
 
         return redirect("jobs:job_list")
 
+    print("Request method is not POST, redirecting to job list.")
     return redirect("jobs:job_list")
+
+
+# def job_alert(request):
+#     candidate = request.user  
+#     print("Logged-in user:", candidate)
+
+#     job_alerts = JobAlert.objects.filter(cand_id=candidate).select_related('job_alert_id').order_by('-created_at')
+#     print("Number of job alerts:", job_alerts.count())
+
+#     for alert in job_alerts:
+#         print("Alert -> Job Title:", alert.job_alert_id.title)
+#         print("Company:", alert.job_alert_id.company_name)
+#         print("Created at:", alert.created_at)
+
+#     context = {
+#         'user': candidate,
+#         'job_alerts': job_alerts,
+#     }
+#     return render(request, 'candidate_home.html', context)
+
 
 def delete_job(request, job_id):
     if request.method == "POST":

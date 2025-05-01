@@ -14,47 +14,11 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .models import Candidate, Job
 from .utils import  extract_resume_data, filter_jobs, rank_job
-
-
 from django.shortcuts import redirect
 from django.contrib import messages
 from .models import Job
 from notify.models import JobAlert
-
-# def create_job(request):
-#     if request.method == "POST":
-#         # Ensure user is authenticated
-#         if not request.session.get("user_id"):
-#             messages.error(request, "You must be logged in to create a job.")
-#             return redirect("user:login")
-
-#         # Get the data from the POST request
-#         title = request.POST.get("title")
-#         description = request.POST.get("description")
-#         skills_required = request.POST.get("skills_required")
-#         location = request.POST.get("location")
-#         min_experience = request.POST.get("min_experience")
-#         job_type = request.POST.get("job_type")
-#         salary = request.POST.get("salary")
-
-#         try:
-#             Job.objects.create(
-#                 title=title,
-#                 description=description,
-#                 skills_required=skills_required,
-#                 location=location,
-#                 min_experience=min_experience or 0, 
-#                 job_type=job_type,
-#                 salary=salary or 0  
-#             )
-#             messages.success(request, "Job created successfully!")
-#         except Exception as e:
-#             messages.error(request, f"Error creating job: {e}")
-
-#         return redirect("jobs:job_list")
-
-#     return redirect("jobs:job_list")
-
+from django.db.models import Q
 
 
 def create_job(request):
@@ -108,23 +72,22 @@ def create_job(request):
     return redirect("jobs:job_list")
 
 
-# def job_alert(request):
-#     candidate = request.user  
-#     print("Logged-in user:", candidate)
+def search_jobs(request):
+    query = request.GET.get('query', '')
+    location = request.GET.get('location', '')
+    job_type = request.GET.get('job_type', '')
+    jobs = Job.objects.all()
 
-#     job_alerts = JobAlert.objects.filter(cand_id=candidate).select_related('job_alert_id').order_by('-created_at')
-#     print("Number of job alerts:", job_alerts.count())
+    if query:
+        jobs = jobs.filter(Q(title__icontains=query) | Q(description__icontains=query))
 
-#     for alert in job_alerts:
-#         print("Alert -> Job Title:", alert.job_alert_id.title)
-#         print("Company:", alert.job_alert_id.company_name)
-#         print("Created at:", alert.created_at)
+    if location:
+        jobs = jobs.filter(location__icontains=location)
 
-#     context = {
-#         'user': candidate,
-#         'job_alerts': job_alerts,
-#     }
-#     return render(request, 'candidate_home.html', context)
+    if job_type:
+        jobs = jobs.filter(job_type__icontains=job_type)
+
+    return render(request, 'jobs/job_list.html', {'jobs': jobs})
 
 
 def delete_job(request, job_id):

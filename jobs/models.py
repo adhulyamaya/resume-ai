@@ -1,21 +1,7 @@
 from django.db import models 
 from user.models import User,Candidate
 
-# class Job(models.Model): 
-#     JOB_TYPE_CHOICES= [
-#         ('Onsite','Onsite'),
-#         ('WorkFromHome','WorkFromHome'),
-#         ('Hybrid','Hybrid')
-#     ]
-#     recruiter_id = models.ForeignKey(User, on_delete=models.CASCADE)
-#     job_desc = models.TextField() 
-#     skills_required = models.TextField() 
-#     location = models.CharField(max_length=100) 
-#     salary = models.DecimalField(max_digits=7, decimal_places=2)
-#     job_type = models.CharField(max_length=15, choices=JOB_TYPE_CHOICES)
-#     created_at = models.DateTimeField(auto_now_add=True) 
-#     updated_at = models.DateTimeField(auto_now=True)
-    
+
 class Job(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()

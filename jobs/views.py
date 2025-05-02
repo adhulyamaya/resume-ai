@@ -128,6 +128,26 @@ def apply(request, job_id):
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
 
+def application_status(request):
+    user_id = request.session.get("user_id")
+    if not user_id:
+        return JsonResponse({'error': 'You must be logged in to view applications.'}, status=400)
+
+    user = get_object_or_404(User, id=user_id)
+    candidate = get_object_or_404(Candidate, user_id=user)
+
+    applications = JobApplication.objects.filter(candidate_job_app_id=candidate).select_related('job_id')
+
+    application_data = []
+    for app in applications:
+        application_data.append({
+            'job_id': app.job_id.id,
+            'job_title': app.job_id.title,
+            'status': app.status,
+        })
+
+    return render(request, 'user/candidate_home.html', {'applications': application_data},)    
+
 
 def delete_job(request, job_id):
     if request.method == "POST":

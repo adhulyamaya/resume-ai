@@ -88,13 +88,11 @@
                 <i class="ri-search-line"></i> Search Jobs
               </button>
             </li>
-
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages" type="button" role="tab">
-                <i class="ri-chat-3-line"></i> Messages
+              <button class="nav-link" id="suggestions-tab" data-bs-toggle="tab" data-bs-target="#suggestions" type="button" role="tab">
+                <i class="ri-lightbulb-line"></i> Job Suggestions
               </button>
             </li>
-            
             <li class="nav-item" role="presentation">
               <button class="nav-link" id="status-tab" data-bs-toggle="tab" data-bs-target="#status" type="button" role="tab">
                 <i class="ri-file-list-3-line"></i> Application Status
@@ -141,7 +139,7 @@
                 </tbody>
               </table>
             </div>
-
+            
             <!-- Messages Tab -->
             <!-- Messages Tab -->
             <div class="tab-pane fade" id="messages" role="tabpanel">
@@ -213,49 +211,7 @@
             {% endif %}
           </div>
 
-          <!-- Job Suggestions Tab -->
-           
-        <div class="tab-pane fade" id="suggestions" role="tabpanel">
-          <h5><i class="ri-lightbulb-line"></i> Job Suggestions</h5>
-
-          {% if matched_jobs %}
-            <div class="table-responsive">
-              <table class="table table-hover table-bordered">
-                <thead class="table-success">
-                  <tr>
-                    <th>Job Title</th>
-                    <th>Company</th>
-                    <th>Location</th>
-                    <th>Posted On</th>
-                    <th>Description</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for job in matched_jobs %}
-                    <tr>
-                      <td>{{ job.title }}</td>
-                      <td>{{ job.company_name }}</td>
-                      <td>{{ job.location }}</td>
-                      <td>{{ job.posted_on }}</td>
-                      <td>{{ job.description|truncatewords:15 }}</td>
-                      <td>
-                        <a href="{% url 'job:apply' job.id %}" class="btn btn-sm btn-outline-primary">
-                          Apply Now
-                        </a>
-                      </td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          {% else %}
-            <p class="text-muted">No job suggestions available at the moment. Please check back later.</p>
-          {% endif %}
-        </div>
-
-
-            {% comment %} <!-- Job Suggestions Tab -->
+            <!-- Job Suggestions Tab -->
             <div class="tab-pane fade" id="suggestions" role="tabpanel">
               <h5><i class="ri-lightbulb-line"></i> Job Suggestions</h5>
               
@@ -276,7 +232,7 @@
               {% else %}
                 <p>No job suggestions available.</p>
               {% endif %}
-            </div> {% endcomment %}
+            </div>
 
             <!-- Notifications Modal -->
             <div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsModalLabel" aria-hidden="true">

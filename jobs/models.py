@@ -42,6 +42,9 @@ class JobApplication(models.Model):
     applied_at = models.DateTimeField(auto_now_add=True) 
     updated_at = models.DateTimeField(auto_now_add=True) 
 
+    def __str__(self):
+        return f"{self.candidate_job_app_id} - {self.job_id} - {self.status}"
+
 from django.db import models
 
 class ResumeData(models.Model):

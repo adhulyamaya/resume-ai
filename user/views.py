@@ -636,11 +636,15 @@ def candidate_action(request, candidate_id):
             candidate.status = 'Rejected'
         else:
             messages.error(request, "Invalid action.")
-            return redirect('recruiter:search_candidates')
+            return redirect('user:search_candidates')
         
         candidate.save()
         messages.success(request, f"Candidate {action} successfully!")
     except Candidate.DoesNotExist:
         messages.error(request, "Candidate not found.")
     
-    return redirect('recruiter:search_candidates')
+    return redirect('user:search_candidates')
+
+
+
+

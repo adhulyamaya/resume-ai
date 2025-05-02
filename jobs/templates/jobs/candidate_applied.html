@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Candidates Who Applied for Jobs</h3>
+
+    {% if applications %}
+        <table class="table table-bordered" style="color: white;">
+            <thead>
+                <tr>
+                    <th>Candidate Name</th>
+                    <th>Email</th>
+                    <th>Job Title</th>
+                    <th>Applied At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applications %}
+                    <tr>
+                        <td>{{ app.candidate_job_app_id.user.get_full_name }}</td>
+                        <td>{{ app.candidate_job_app_id.user.email }}</td>
+                        <td>{{ app.job_id.title }}</td>
+                        <td>{{ app.applied_at }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No candidates have applied yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -215,3 +215,27 @@ def rank_jobs(request):
         print(f"Error in rank_jobs view: {e}")
         messages.error(request, f"An error occurred: {str(e)}")
         return render(request, 'candidate_home.html', {'error': str(e)})
+    
+
+
+def applied_candidates(request):
+    applications = JobApplication.objects.filter(status='Apply').select_related('candidate_job_app_id', 'job_id')
+    context = {
+        'applications': applications,
+    }
+    return render(request, 'candidates_applied.html', context)
+
+
+
+def candidates_applied(request, job_id):
+    job = get_object_or_404(Job, id=job_id)
+    applications = JobApplication.objects.filter(job_id=job, status='Apply').select_related('candidate_job_app_id')
+    candidates = [app.candidate_job_app_id for app in applications]
+
+    context = {
+        'job': job,
+        'candidates': candidates
+    }
+
+    return render(request, 'candidates_applied.html', context)
+
